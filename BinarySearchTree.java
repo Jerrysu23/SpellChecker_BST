@@ -4,21 +4,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
-
 /**
+ * Represents a generically-typed binary search tree.
  * 
- * This class was created for  
+ * For every node X, all elements in X's left subtree are smaller than X.element
+ * and all elements in X's right subtree are larger then X.element.
  * 
- * @author JUNLIN SU && 
- *
- * @param <Type>
+ * @author Erin Parker && JUNLIN SU && JIAYU LUO
+ * @version March 23, 2020
  */
 
+public class BinarySearchTree<Type extends Comparable<? super Type>> implements SortedSet<Type> {
 
-
-
-public class BinarySearchTree<Type extends Comparable<? super Type>> implements SortedSet<Type>{
-	
 	/**
 	 * Represents a (generic) node in a binary tree.
 	 */
@@ -29,13 +26,12 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 		public BinaryNode<T> left;
 
 		public BinaryNode<T> right;
-		
+
 		/**
 		 * Creates a new BinaryNode object.
 		 * 
 		 * @param element - data element to store at this node
 		 */
-		@SuppressWarnings("unused")
 		public BinaryNode(T element) {
 			this(element, null, null);
 		}
@@ -43,8 +39,8 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 		/**
 		 * Creates a new BinaryNode object.
 		 * 
-		 * @param element - data element to store at this node
-		 * @param leftChild - this node's left child
+		 * @param element    - data element to store at this node
+		 * @param leftChild  - this node's left child
 		 * @param rightChild - this node's right child
 		 */
 		public BinaryNode(T element, BinaryNode<T> left, BinaryNode<T> right) {
@@ -57,12 +53,11 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 		 * @return a string containing all of the edges in the tree rooted at "this"
 		 *         node, in DOT format
 		 */
-		@SuppressWarnings("unused")
 		public String generateDot() {
 			String ret = "\tnode" + element + " [label = \"<f0> |<f1> " + element + "|<f2> \"]\n";
-			if(left != null)
+			if (left != null)
 				ret += "\tnode" + element + ":f0 -> node" + left.element + ":f1\n" + left.generateDot();
-			if(right != null)
+			if (right != null)
 				ret += "\tnode" + element + ":f2 -> node" + right.element + ":f1\n" + right.generateDot();
 
 			return ret;
@@ -70,7 +65,7 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 	}
 
 	private BinaryNode<Type> root;
-	
+
 	private int size;
 
 	public BinarySearchTree() {
@@ -88,37 +83,33 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 	@Override
 	public boolean add(Type item) {
 		BinaryNode<Type> temp = root;
-		if(temp == null) {
+		if (temp == null) {
 			root = new BinaryNode<Type>(item, null, null);
 			size++;
 			return true;
 		}
-		while(temp != null) {
+		while (temp != null) {
 			int cmp = item.compareTo(temp.element);
-			if(cmp < 0) {
-				if(temp.left == null) {
+			if (cmp < 0) {
+				if (temp.left == null) {
 					temp.left = new BinaryNode<Type>(item, null, null);
 					size++;
 					return true;
-				}
-				else{
+				} else {
 					temp = temp.left;
 				}
-			}
-			else if(cmp > 0) {
-				if(temp.right == null) {
+			} else if (cmp > 0) {
+				if (temp.right == null) {
 					temp.right = new BinaryNode<Type>(item, null, null);
 					size++;
 					return true;
-				}
-				else{
+				} else {
 					temp = temp.right;
 				}
-			}
-			else
+			} else
 				return false;
 		}
-			
+
 		return false;
 	}
 
@@ -132,8 +123,13 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 	 */
 	@Override
 	public boolean addAll(Collection<? extends Type> items) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean addedAll = false;
+
+		for (Type t : items)
+			if (add(t))
+				addedAll = true;
+
+		return addedAll;
 	}
 
 	/**
@@ -142,8 +138,9 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 	 */
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
-		
+		this.root = null;
+		this.size = 0;
+
 	}
 
 	/**
@@ -157,23 +154,21 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 	@Override
 	public boolean contains(Type item) {
 		BinaryNode<Type> temp = root;
-		if(temp == null) 
+		if (temp == null)
 			return false;
-		while(temp != null) {
+		while (temp != null) {
 			int cmp = item.compareTo(temp.element);
-			if(cmp > 0) {
-				if(temp.right == null)
+			if (cmp > 0) {
+				if (temp.right == null)
 					return false;
 				else
 					temp = temp.right;
-			}
-			else if(cmp < 0) {
-				if(temp.left == null)
+			} else if (cmp < 0) {
+				if (temp.left == null)
 					return false;
 				else
 					temp = temp.left;
-			}
-			else
+			} else
 				return true;
 		}
 		return false;
@@ -189,8 +184,13 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 	 */
 	@Override
 	public boolean containsAll(Collection<? extends Type> items) {
-		// TODO Auto-generated method stub
-		return false;
+
+		for (Type t : items)
+			if (!contains(t))
+				return false;
+
+		return true;
+
 	}
 
 	/**
@@ -200,10 +200,14 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 	 */
 	@Override
 	public Type first() throws NoSuchElementException {
-		if(isEmpty())
+		BinaryNode<Type> temp = root;
+		if (temp == null)
 			throw new NoSuchElementException();
-		
-		return null;
+
+		while(temp.left != null) {
+			temp = temp.left;
+		}
+		return temp.element;
 	}
 
 	/**
@@ -221,10 +225,14 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 	 */
 	@Override
 	public Type last() throws NoSuchElementException {
-		if(isEmpty())
+		BinaryNode<Type> temp = root;
+		if (temp == null)
 			throw new NoSuchElementException();
-		
-		return null;
+
+		while(temp.right != null) {
+			temp = temp.right;
+		}
+		return temp.element;
 	}
 
 	/**
@@ -240,76 +248,92 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 		BinaryNode<Type> curNode = temp;
 		BinaryNode<Type> removedNode = temp;
 		boolean hasLeft = false;
-		if(temp == null)
+		if (temp == null)
 			return false;
-		while(removedNode != null) {
+		while (removedNode != null) {
 			int cmp = item.compareTo(removedNode.element);
-			if(cmp < 0) {
+			if (cmp < 0) {
 				hasLeft = true;
 				curNode = removedNode;
 				removedNode = removedNode.left;
-			}
-			else if(cmp > 0) {
+			} else if (cmp > 0) {
 				hasLeft = false;
 				curNode = removedNode;
 				removedNode = removedNode.right;
-			}
-			else {
-				//when it is a leaf
-				if(removedNode.left == null && removedNode.right == null) {
-					if(removedNode == temp) {
+			} else {
+				// when it is a leaf
+				if (removedNode.left == null && removedNode.right == null) {
+					if (removedNode == temp) {
 						temp = null;
 						size--;
-					}
-					else if(hasLeft) {
+					} else if (hasLeft) {
 						curNode.left = null;
 						size--;
-					}
-					else {
+					} else {
 						curNode.right = null;
 						size--;
 					}
 				}
-				//when there is only a left node
-				else if(removedNode.left != null && removedNode.right == null) {
-					if(removedNode == temp) {
+				// when there is only a left node
+				else if (removedNode.left != null && removedNode.right == null) {
+					if (removedNode == temp) {
 						temp = null;
 						size--;
-					}
-					else if(hasLeft) {
+					} else if (hasLeft) {
 						curNode.left = removedNode.left;
 						size--;
-					}
-					else {
+					} else {
 						curNode.right = removedNode.left;
 						size--;
 					}
 				}
-				//when there is only a right node
-				else if(removedNode.left == null && removedNode.right != null) {
-					if(removedNode == temp) {
+				// when there is only a right node
+				else if (removedNode.left == null && removedNode.right != null) {
+					if (removedNode == temp) {
 						temp = null;
 						size--;
-					}
-					else if(hasLeft) {
+					} else if (hasLeft) {
 						curNode.left = removedNode.right;
 						size--;
-					}
-					else {
+					} else {
 						curNode.right = removedNode.right;
 						size--;
 					}
 				}
-				//when there are left and right nodes
-				else if(removedNode.left != null && removedNode.right != null) {
-					if(removedNode.right.left == null) {
+				// when there are left and right nodes
+				else if (removedNode.left != null && removedNode.right != null) {
+					if (removedNode.right.left == null) {
 						removedNode.element = removedNode.right.element;
 						removedNode.right = removedNode.right.right;
 						size--;
 						return true;
 					}
-					
+					Type smallest = removedNode.right.left.element;
+					BinaryNode<Type> replacedNode = removedNode.right;
+					BinaryNode<Type> fatherOfRep = removedNode.right;
+					while ((replacedNode.left != null && replacedNode.right != null)
+							|| replacedNode.element == smallest) {
+						fatherOfRep = replacedNode;
+						replacedNode = replacedNode.left;
+					}
+
+					if (replacedNode.right == null && replacedNode.left != null) {
+						fatherOfRep.left = replacedNode.left;
+					} else if (replacedNode.left == null && replacedNode.right != null) {
+						fatherOfRep.left = replacedNode.right;
+					} else if (replacedNode.right != null && replacedNode.left != null) {
+						fatherOfRep.left = replacedNode.right;
+					}
+
+					removedNode.element = replacedNode.element;
+					size--;
+					if (removedNode == temp) {
+						temp = null;
+						size--;
+					}
+
 				}
+				return true;
 			}
 		}
 		return false;
@@ -326,8 +350,13 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 	 */
 	@Override
 	public boolean removeAll(Collection<? extends Type> items) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean RemovedAll = false;
+
+		for (Type i : items)
+			if (remove(i))
+				RemovedAll = true;
+
+		return RemovedAll;
 	}
 
 	/**
@@ -344,10 +373,18 @@ public class BinarySearchTree<Type extends Comparable<? super Type>> implements 
 	 */
 	@Override
 	public ArrayList<Type> toArrayList() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		ArrayList<Type> list = new ArrayList<Type>();
 
+		traversal(this.root, list);
+		return list;
+	}
 	
+	private void traversal(BinaryNode<Type> node, ArrayList<Type> list) {
+		if(node != null) {
+			traversal(node.left, list);
+			list.add(node.element);
+			traversal(node.right, list);
+		}
+	}
 
 }

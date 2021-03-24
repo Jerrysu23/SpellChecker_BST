@@ -82,7 +82,7 @@ public class SpellChecker {
 	public List<String> spellCheck(File documentFile) {
 
 		List<String> wordsToCheck = readFromFile(documentFile);
-		ArrayList <String> misspelledWords = new ArrayList<String>();
+		List <String> misspelledWords = new ArrayList<String>();
 
 		for (String s : wordsToCheck)
 			if (!dictionary.contains(s))
